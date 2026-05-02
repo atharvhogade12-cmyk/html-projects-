@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Infinity Vanguard OS | Atharv R. Hogade</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Chosen Palette: Executive Minimalist. Base: Bone White (#F9F9F8), Accents: Deep Slate (#1E293B), Emerald (#10B981), and Cyber Blue (#3B82F6). -->
+    <!-- Application Structure Plan: A centralized 'Command Center' approach. The layout uses a persistent sidebar for global navigation and a dynamic main stage that switches between 'Command Center' (Dashboard), 'The Grid' (Full Schedule), and 'Terminal' (Vocab/Projects). This structure prioritizes immediate visibility of the day's priority while allowing deep dives into specific project metrics. -->
+    <!-- Visualization & Content Choices: 
+         1. Weekly Intensity -> Goal: Change -> Area Chart -> Shows the rise and fall of mental load -> Chart.js.
+         2. Subject Distribution -> Goal: Compare -> Radar Chart -> Unique visualization for skill balance across domains -> Chart.js.
+         3. Project Focus -> Goal: Inform -> Progress Rings -> HTML/CSS Circular bars for GramUrja and RoboGenesis.
+         4. Task Grid -> Goal: Organize -> Interactive Data Cards -> Visualizing periods as manageable blocks -> JS/Tailwind.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #f3f4f6;
+            color: #1f2937;
+        }
+
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .sidebar-item-active {
+            background: white;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            color: #059669;
+            font-weight: 700;
+        }
+
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 100%;
+            height: 300px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #d1d5db;
+            border-radius: 10px;
+        }
+
+        @keyframes pulse-soft {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        .live-indicator {
+            animation: pulse-soft 2s infinite;
+        }
+    </style>
+</head>
+<body class="h-screen overflow-hidden flex flex-col md:flex-row">
+
+    <!-- Sidebar Navigation -->
+    <aside class="w-full md:w-72 bg-stone-100 border-r border-stone-200 flex flex-col z-20">
+        <div class="p-8">
+            <div class="flex items-center gap-3 mb-2">
+                <div class="w-10 h-10 bg-emerald-600 rounded-xl flex items-center justify-center text-white font-bold text-xl shadow-lg shadow-emerald-200">
+                    A
+                </div>
+                <div>
+                    <h1 class="text-lg font-bold tracking-tight">VANGUARD</h1>
+                    <p class="text-[10px] text-stone-500 font-bold uppercase tracking-[0.2em]">Infinity OS v2.0</p>
+                </div>
+            </div>
+        </div>
+
+        <nav class="flex-1 px-4 space-y-2 overflow-y-auto custom-scrollbar">
+            <button onclick="switchView('dashboard')" id="nav-dashboard" class="sidebar-item-active w-full flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-200">
+                <span class="text-lg">📊</span> <span>Command Center</span>
+            </button>
+            <button onclick="switchView('schedule')" id="nav-schedule" class="w-full flex items-center gap-4 px-4 py-3 rounded-xl hover:bg-white/50 transition-all duration-200">
+                <span class="text-lg">🗓️</span> <span>The Grid</span>
+            </button>
+            <button onclick="switchView('projects')" id="nav-projects" class="w-full flex items-center gap-4 px-4 py-3 rounded-xl hover:bg-white/50 transition-all duration-200">
+                <span class="text-lg">🏗️</span> <span>Project Lab</span>
+            </button>
+            <button onclick="switchView('vocab')" id="nav-vocab" class="w-full flex items-center gap-4 px-4 py-3 rounded-xl hover:bg-white/50 transition-all duration-200">
+                <span class="text-lg">🧠</span> <span>Cognitive Vault</span>
+            </button>
+        </nav>
+
+        <div class="p-6 bg-stone-200/50 mt-auto">
+            <div class="flex items-center gap-3">
+                <div class="w-3 h-3 bg-emerald-500 rounded-full live-indicator"></div>
+                <span class="text-xs font-bold text-stone-600 uppercase tracking-widest">System Active</span>
+            </div>
+            <p class="text-[10px] text-stone-500 mt-1">DYP CET | 2026-05-04 Week</p>
+        </div>
+    </aside>
+
+    <!-- Main Stage -->
+    <main class="flex-1 overflow-y-auto bg-[#F9F9F8] relative custom-scrollbar">
+        
+        <!-- Top Bar -->
+        <header class="sticky top-0 z-10 px-8 py-6 flex flex-col md:flex-row md:items-center justify-between gap-4 bg-[#F9F9F8]/80 backdrop-blur-md border-b border-stone-100">
+            <div>
+                <h2 id="view-title" class="text-2xl font-extrabold text-slate-900">Command Center</h2>
+                <p class="text-sm text-stone-500">Welcome back, Atharv. Your weekly trajectory is on track.</p>
+            </div>
+            <div class="flex items-center gap-4">
+                <div class="bg-white border border-stone-200 px-4 py-2 rounded-full flex items-center gap-3 shadow-sm">
+                    <span class="text-xs font-bold text-stone-400">MAY 2026</span>
+                    <span class="w-px h-4 bg-stone-200"></span>
+                    <span id="current-date-display" class="text-xs font-bold text-emerald-600">Mon 04</span>
+                </div>
+            </div>
+        </header>
+
+        <div id="content-container" class="p-8">
+            
+            <!-- Dashboard View -->
+            <section id="view-dashboard" class="space-y-8 animate-in">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    
+                    <!-- Weekly Intensity Chart -->
+                    <div class="lg:col-span-2 glass-panel p-6 rounded-3xl shadow-sm">
+                        <div class="flex items-center justify-between mb-6">
+                            <h3 class="font-bold text-slate-800">Cognitive Load Distribution</h3>
+                            <span class="text-[10px] font-bold bg-emerald-100 text-emerald-700 px-2 py-1 rounded-md uppercase">Weekly Forecast</span>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="intensityChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Project Milestones -->
+                    <div class="glass-panel p-6 rounded-3xl shadow-sm space-y-6">
+                        <h3 class="font-bold text-slate-800">Active Project Pulse</h3>
+                        
+                        <div class="space-y-4">
+                            <div>
+                                <div class="flex justify-between text-xs font-bold mb-2">
+                                    <span class="text-emerald-700">GramUrja Database</span>
+                                    <span>65%</span>
+                                </div>
+                                <div class="w-full h-3 bg-stone-200 rounded-full overflow-hidden">
+                                    <div class="h-full bg-emerald-500 rounded-full" style="width: 65%"></div>
+                                </div>
+                                <p class="text-[10px] text-stone-500 mt-2">Expanding multi-ward schema & SQLMap testing.</p>
+                            </div>
+                            
+                            <div>
+                                <div class="flex justify-between text-xs font-bold mb-2">
+                                    <span class="text-blue-700">RoboGenesis UI</span>
+                                    <span>40%</span>
+                                </div>
+                                <div class="w-full h-3 bg-stone-200 rounded-full overflow-hidden">
+                                    <div class="h-full bg-blue-500 rounded-full" style="width: 40%"></div>
+                                </div>
+                                <p class="text-[10px] text-stone-500 mt-2">3D rendering elements using Three.js.</p>
+                            </div>
+
+                            <div class="pt-4 border-t border-stone-100">
+                                <h4 class="text-[10px] font-bold text-stone-400 uppercase tracking-widest mb-3">Birthday Event</h4>
+                                <div class="bg-rose-50 border border-rose-100 p-3 rounded-2xl flex items-center gap-3">
+                                    <div class="text-2xl">🎂</div>
+                                    <div>
+                                        <p class="text-xs font-bold text-rose-800">19th Anniversary</p>
+                                        <p class="text-[10px] text-rose-600">May 05 - Celebration & Rest scheduled.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div class="bg-white p-5 rounded-2xl border border-stone-100 shadow-sm">
+                        <p class="text-[10px] font-bold text-stone-400 uppercase mb-1">Weekly Goal</p>
+                        <p class="text-sm font-bold text-slate-800">Master Pointers in C</p>
+                    </div>
+                    <div class="bg-white p-5 rounded-2xl border border-stone-100 shadow-sm">
+                        <p class="text-[10px] font-bold text-stone-400 uppercase mb-1">Primary Tech</p>
+                        <p class="text-sm font-bold text-blue-600">Python Automation</p>
+                    </div>
+                    <div class="bg-white p-5 rounded-2xl border border-stone-100 shadow-sm">
+                        <p class="text-[10px] font-bold text-stone-400 uppercase mb-1">Security Focus</p>
+                        <p class="text-sm font-bold text-emerald-600">Network Scanning</p>
+                    </div>
+                    <div class="bg-white p-5 rounded-2xl border border-stone-100 shadow-sm">
+                        <p class="text-[10px] font-bold text-stone-400 uppercase mb-1">Hobby Time</p>
+                        <p class="text-sm font-bold text-orange-600">Techno Production</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Schedule View -->
+            <section id="view-schedule" class="hidden space-y-6 animate-in">
+                <div class="flex items-center gap-4 mb-4 overflow-x-auto pb-2 custom-scrollbar">
+                    <button onclick="filterDay('Monday')" class="day-tab active bg-emerald-600 text-white px-6 py-2 rounded-full text-xs font-bold shadow-md shadow-emerald-100">Monday</button>
+                    <button onclick="filterDay('Tuesday')" class="day-tab bg-white text-stone-500 border border-stone-200 px-6 py-2 rounded-full text-xs font-bold hover:bg-stone-50">Tuesday</button>
+                    <button onclick="filterDay('Wednesday')" class="day-tab bg-white text-stone-500 border border-stone-200 px-6 py-2 rounded-full text-xs font-bold hover:bg-stone-50">Wednesday</button>
+                    <button onclick="filterDay('Thursday')" class="day-tab bg-white text-stone-500 border border-stone-200 px-6 py-2 rounded-full text-xs font-bold hover:bg-stone-50">Thursday</button>
+                    <button onclick="filterDay('Friday')" class="day-tab bg-white text-stone-500 border border-stone-200 px-6 py-2 rounded-full text-xs font-bold hover:bg-stone-50">Friday</button>
+                </div>
+
+                <div id="day-notes-box" class="bg-blue-50 border border-blue-100 p-4 rounded-3xl mb-6">
+                    <p class="text-xs font-bold text-blue-800">DAILY STRATEGY</p>
+                    <p id="day-notes-text" class="text-sm text-blue-700 mt-1">Focus on foundational AI concepts and core C syntax for Infinity Hunt prep.</p>
+                </div>
+
+                <div id="schedule-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <!-- Cards will be injected here -->
+                </div>
+            </section>
+
+            <!-- Projects View -->
+            <section id="view-projects" class="hidden space-y-8 animate-in">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div class="glass-panel p-8 rounded-[2rem] border-l-[12px] border-emerald-500">
+                        <h3 class="text-2xl font-black text-slate-800 mb-2">GramUrja</h3>
+                        <p class="text-emerald-700 font-bold text-sm mb-6 uppercase tracking-widest">Multi-Ward Database System</p>
+                        
+                        <div class="space-y-4">
+                            <div class="flex items-start gap-4">
+                                <div class="w-8 h-8 bg-emerald-100 rounded-lg flex items-center justify-center text-emerald-600 font-bold">1</div>
+                                <div>
+                                    <p class="font-bold text-slate-800">Advanced MySQL Schema</p>
+                                    <p class="text-xs text-stone-500">Relational algebra & SQLMap security patching.</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start gap-4">
+                                <div class="w-8 h-8 bg-emerald-100 rounded-lg flex items-center justify-center text-emerald-600 font-bold">2</div>
+                                <div>
+                                    <p class="font-bold text-slate-800">Team Integration</p>
+                                    <p class="text-xs text-stone-500">Syncing tasks across the 6-member engineering unit.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="glass-panel p-8 rounded-[2rem] border-l-[12px] border-blue-500">
+                        <h3 class="text-2xl font-black text-slate-800 mb-2">RoboGenesis</h3>
+                        <p class="text-blue-700 font-bold text-sm mb-6 uppercase tracking-widest">Futuristic UI/UX Architecture</p>
+                        
+                        <div class="space-y-4">
+                            <div class="flex items-start gap-4">
+                                <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center text-blue-600 font-bold">1</div>
+                                <div>
+                                    <p class="font-bold text-slate-800">3D Web Integration</p>
+                                    <p class="text-xs text-stone-500">Building immersive elements with Three.js & CSS Glassmorphism.</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start gap-4">
+                                <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center text-blue-600 font-bold">2</div>
+                                <div>
+                                    <p class="font-bold text-slate-800">Agentic Workflows</p>
+                                    <p class="text-xs text-stone-500">Integrating Python backend with autonomous AI agents.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-slate-900 text-white p-8 rounded-[2rem] shadow-2xl relative overflow-hidden">
+                    <div class="absolute top-0 right-0 p-12 opacity-10 text-9xl font-bold">AI</div>
+                    <div class="relative z-10">
+                        <h3 class="text-xl font-bold mb-4">Skill Radar Analysis</h3>
+                        <div class="max-w-md mx-auto h-72">
+                            <canvas id="skillRadarChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Vocab View -->
+            <section id="view-vocab" class="hidden space-y-8 animate-in">
+                <div class="flex flex-col items-center py-12">
+                    <div id="vocab-card" class="w-full max-w-xl bg-white border border-stone-200 rounded-[2.5rem] shadow-2xl shadow-stone-200 p-10 relative overflow-hidden transition-all duration-500">
+                        <div class="absolute -top-10 -right-10 w-40 h-40 bg-stone-50 rounded-full"></div>
+                        
+                        <div class="relative z-10">
+                            <div class="flex items-center justify-between mb-8">
+                                <span id="v-pos" class="bg-emerald-100 text-emerald-700 px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-widest">ADJECTIVE</span>
+                                <span class="text-stone-300 font-bold italic">Cognitive Asset</span>
+                            </div>
+                            
+                            <h2 id="v-word" class="text-5xl font-black text-slate-900 mb-6 tracking-tighter">Eschew</h2>
+                            <p id="v-meaning" class="text-lg text-stone-600 mb-8 leading-relaxed">To deliberately avoid using; to abstain from something problematic or unnecessary.</p>
+                            
+                            <div class="bg-stone-50 border border-stone-100 p-6 rounded-3xl">
+                                <p class="text-[10px] font-black text-stone-400 uppercase mb-2">Usage Context</p>
+                                <p id="v-context" class="text-sm text-stone-800 leading-relaxed font-medium">"Writing clean C code means you eschew bad memory management practices to prevent your programs from crashing."</p>
+                            </div>
+
+                            <button onclick="shuffleVocab()" class="mt-10 w-full bg-slate-900 text-white py-4 rounded-2xl font-bold hover:bg-slate-800 transition-all active:scale-95">
+                                SHUFFLE VAULT
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <script>
+        // Data Configuration
+        const scheduleData = {
+            "Monday": {
+                date: "2026-05-04",
+                notes: "Focus on foundational AI concepts and core C syntax for Infinity Hunt prep.",
+                intensity: [4, 5, 5, 4, 3, 4, 2, 1],
+                periods: [
+                    { p: 1, title: "Applied Math", desc: "Linear Algebra: Vector spaces & matrices.", cat: "Math" },
+                    { p: 2, title: "C Programming", desc: "Mastering pointers to eschew memory leaks.", cat: "Core" },
+                    { p: 3, title: "C Lab", desc: "Practical syntax drills and debugging.", cat: "Lab" },
+                    { p: 4, title: "Intro to AI", desc: "Exploring heuristic algorithms like A* search.", cat: "AI" },
+                    { p: 5, title: "Cybersecurity", desc: "Network scanning using Termux and Nmap.", cat: "Security" },
+                    { p: 6, title: "GramUrja", desc: "Expanding the multi-ward database schema.", cat: "Project" },
+                    { p: 7, title: "Communication", desc: "Technical presentation and articulation.", cat: "Soft Skills" },
+                    { p: 8, title: "Free Time", desc: "Chess strategy review (En Passant tactics).", cat: "Hobby" }
+                ]
+            },
+            "Tuesday": {
+                date: "2026-05-05",
+                notes: "19th Birthday! Balance academics with personal projects and celebration.",
+                intensity: [4, 4, 3, 4, 3, 2, 1, 1],
+                periods: [
+                    { p: 1, title: "Statistics", desc: "Probability distributions and Bayesian inference.", cat: "Math" },
+                    { p: 2, title: "Python Scripts", desc: "Building automation tools for agentic workflows.", cat: "Core" },
+                    { p: 3, title: "Python Lab", desc: "Writing custom bash scripts for sysadmin.", cat: "Lab" },
+                    { p: 4, title: "Web Dev", desc: "3D rendering elements using Three.js.", cat: "Design" },
+                    { p: 5, title: "Web Design", desc: "Implementing glassmorphism paradigm in CSS.", cat: "Design" },
+                    { p: 6, title: "HackerRank", desc: "Analyzing Support Ticket AI Pipeline.", cat: "AI" },
+                    { p: 7, title: "Gaming Break", desc: "Minecraft SMP server administration.", cat: "Hobby" },
+                    { p: 8, title: "Celebration", desc: "Birthday Dinner & Evening Rest.", cat: "Event" }
+                ]
+            },
+            "Wednesday": {
+                date: "2026-05-06",
+                notes: "Deep dive into cybersecurity protocols and open-source intelligence.",
+                intensity: [4, 5, 5, 4, 3, 3, 4, 1],
+                periods: [
+                    { p: 1, title: "DB Systems", desc: "Advanced MySQL schemas and relational algebra.", cat: "Core" },
+                    { p: 2, title: "Database Lab", desc: "SQLMap testing for unassailable security.", cat: "Lab" },
+                    { p: 3, title: "OSINT", desc: "Advanced digital profiling with Sherlock.", cat: "Security" },
+                    { p: 4, title: "RoboGenesis", desc: "Refining the futuristic 3D UI/UX.", cat: "Project" },
+                    { p: 5, title: "Env Studies", desc: "Green computing and sustainability in tech.", cat: "Science" },
+                    { p: 6, title: "Physics", desc: "Semiconductor basics for hardware & robotics.", cat: "Science" },
+                    { p: 7, title: "Local AI", desc: "Experimenting with ERA/Innocent frameworks.", cat: "AI" },
+                    { p: 8, title: "eSports", desc: "Free Fire: Team coordination & planning.", cat: "Hobby" }
+                ]
+            },
+            "Thursday": {
+                date: "2026-05-07",
+                notes: "Building a vanguard approach to full-stack ML engineering.",
+                intensity: [5, 5, 4, 4, 3, 4, 2, 2],
+                periods: [
+                    { p: 1, title: "Advanced ML", desc: "Decision trees and random forests.", cat: "AI" },
+                    { p: 2, title: "Advanced C", desc: "Complex data structures: Graphs & Trees.", cat: "Core" },
+                    { p: 3, title: "Full-Stack", desc: "PHP backend with Python APIs.", cat: "Core" },
+                    { p: 4, title: "Cybersecurity", desc: "Penetration testing with THC-Hydra.", cat: "Security" },
+                    { p: 5, title: "Prompt Eng.", desc: "Crafting system prompts for auto-agents.", cat: "AI" },
+                    { p: 6, title: "Applied Math", desc: "Calculus for gradient descent.", cat: "Math" },
+                    { p: 7, title: "Hobby Time", desc: "Techno music production & listening.", cat: "Hobby" },
+                    { p: 8, title: "Project Sync", desc: "GramUrja coordination with 6-member team.", cat: "Project" }
+                ]
+            },
+            "Friday": {
+                date: "2026-05-08",
+                notes: "End-of-week review, documentation, and weekend hackathon prep.",
+                intensity: [3, 4, 4, 5, 3, 2, 3, 2],
+                periods: [
+                    { p: 1, title: "AI Ethics", desc: "Robust and unbiased ML models.", cat: "AI" },
+                    { p: 2, title: "Cloud Deploy", desc: "Web app hosting & server RBAC.", cat: "Core" },
+                    { p: 3, title: "Python Lab", desc: "Data Viz (Matplotlib/Seaborn) for ML.", cat: "Lab" },
+                    { p: 4, title: "Robotics Lab", desc: "AI software logic with hardware sensors.", cat: "Lab" },
+                    { p: 5, title: "Documentation", desc: "LaTeX resumes and reports formatting.", cat: "Soft Skills" },
+                    { p: 6, title: "Literature", desc: "Strategic character archetypes (Ayanokōji).", cat: "Hobby" },
+                    { p: 7, title: "Weekly Review", desc: "Assessing tech skills & OSS contributions.", cat: "Soft Skills" },
+                    { p: 8, title: "Free Time", desc: "Royal Enfield ride planning.", cat: "Hobby" }
+                ]
+            }
+        };
+
+        const vocabVault = [
+            { word: "Eschew", pos: "VERB", meaning: "To deliberately avoid using; to abstain from.", context: "Writing clean C code means you eschew bad memory management to prevent crashes." },
+            { word: "Heuristic", pos: "NOUN", meaning: "A practical problem-solving approach sufficient for immediate goals.", context: "AI models use heuristic methods to find routes without calculating every possibility." },
+            { word: "Paradigm", pos: "NOUN", meaning: "A typical example, pattern, or model; a dominant framework.", context: "Glassmorphism is a popular design paradigm that dictates modern UIs." },
+            { word: "Unassailable", pos: "ADJECTIVE", meaning: "Unable to be attacked, questioned, or defeated.", context: "By patching vulnerabilities, you make your database unassailable to hackers." },
+            { word: "Vanguard", pos: "NOUN", meaning: "A group leading the way in new developments or ideas.", context: "Studying agentic workflows places you in the vanguard of modern AI engineering." },
+            { word: "Amalgamation", pos: "NOUN", meaning: "The action or result of combining multiple elements into one.", context: "Full-stack development is the amalgamation of design and database logic." },
+            { word: "Pragmatic", pos: "ADJECTIVE", meaning: "Dealing with things sensibly and realistically in a way that is based on practical considerations.", context: "Atharv takes a pragmatic approach to bug fixing, prioritizing stable code over fancy features." },
+            { word: "Salient", pos: "ADJECTIVE", meaning: "Most noticeable or important.", context: "The salient feature of his new dashboard is the real-time skill tracking." }
+        ];
+
+        // State Management
+        let currentView = 'dashboard';
+        let intensityChartInstance = null;
+
+        // Navigation Logic
+        function switchView(viewId) {
+            document.getElementById(`view-${currentView}`).classList.add('hidden');
+            document.getElementById(`nav-${currentView}`).classList.remove('sidebar-item-active');
+            document.getElementById(`nav-${currentView}`).classList.add('hover:bg-white/50');
+
+            currentView = viewId;
+
+            document.getElementById(`view-${currentView}`).classList.remove('hidden');
+            document.getElementById(`nav-${currentView}`).classList.add('sidebar-item-active');
+            document.getElementById(`nav-${currentView}`).classList.remove('hover:bg-white/50');
+
+            // View Specific Logic
+            const titleMap = {
+                'dashboard': 'Command Center',
+                'schedule': 'The Grid Explorer',
+                'projects': 'Project Laboratory',
+                'vocab': 'Cognitive Vault'
+            };
+            document.getElementById('view-title').textContent = titleMap[viewId];
+
+            if (viewId === 'dashboard') renderDashboardCharts();
+            if (viewId === 'schedule') filterDay('Monday');
+            if (viewId === 'projects') renderRadarChart();
+        }
+
+        // Dashboard Charts
+        function renderDashboardCharts() {
+            if (intensityChartInstance) intensityChartInstance.destroy();
+
+            const ctx = document.getElementById('intensityChart').getContext('2d');
+            const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+            gradient.addColorStop(0, 'rgba(16, 185, 129, 0.2)');
+            gradient.addColorStop(1, 'rgba(16, 185, 129, 0)');
+
+            intensityChartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'],
+                    datasets: [{
+                        label: 'Avg Cognitive Load',
+                        data: [4.1, 2.9, 4.0, 4.3, 3.5],
+                        borderColor: '#10b981',
+                        borderWidth: 4,
+                        fill: true,
+                        backgroundColor: gradient,
+                        tension: 0.4,
+                        pointRadius: 6,
+                        pointBackgroundColor: '#ffffff',
+                        pointBorderColor: '#10b981',
+                        pointBorderWidth: 3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { min: 1, max: 5, grid: { color: '#f1f5f9' } },
+                        x: { grid: { display: false } }
+                    }
+                }
+            });
+        }
+
+        function renderRadarChart() {
+            const ctx = document.getElementById('skillRadarChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: ['AI/ML', 'C Logic', 'DB Security', 'Python', 'Web UI', 'Math'],
+                    datasets: [{
+                        label: 'Skill Proficiency',
+                        data: [85, 92, 78, 88, 70, 82],
+                        backgroundColor: 'rgba(59, 130, 246, 0.4)',
+                        borderColor: '#3b82f6',
+                        pointBackgroundColor: '#3b82f6'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            angleLines: { color: 'rgba(255,255,255,0.1)' },
+                            grid: { color: 'rgba(255,255,255,0.1)' },
+                            pointLabels: { color: '#ffffff', font: { size: 10 } },
+                            ticks: { display: false }
+                        }
+                    },
+                    plugins: { legend: { display: false } }
+                }
+            });
+        }
+
+        // Schedule Filtering
+        function filterDay(dayName) {
+            const tabs = document.querySelectorAll('.day-tab');
+            tabs.forEach(t => {
+                if(t.textContent === dayName) {
+                    t.className = "day-tab bg-emerald-600 text-white px-6 py-2 rounded-full text-xs font-bold shadow-md shadow-emerald-100";
+                } else {
+                    t.className = "day-tab bg-white text-stone-500 border border-stone-200 px-6 py-2 rounded-full text-xs font-bold hover:bg-stone-50";
+                }
+            });
+
+            const day = scheduleData[dayName];
+            document.getElementById('current-date-display').textContent = `${dayName.substring(0,3)} ${day.date.substring(8)}`;
+            document.getElementById('day-notes-text').textContent = day.notes;
+
+            const grid = document.getElementById('schedule-grid');
+            grid.innerHTML = '';
+
+            day.periods.forEach(p => {
+                const colorMap = {
+                    'AI': 'emerald', 'Core': 'blue', 'Math': 'slate', 'Security': 'red', 'Lab': 'indigo', 'Project': 'teal', 'Hobby': 'orange'
+                };
+                const color = colorMap[p.cat] || 'stone';
+
+                const card = document.createElement('div');
+                card.className = "bg-white p-6 rounded-3xl border border-stone-100 shadow-sm hover:shadow-md transition-all group cursor-pointer";
+                card.innerHTML = `
+                    <div class="flex items-center justify-between mb-4">
+                        <span class="text-[10px] font-black text-stone-300">PERIOD ${p.p}</span>
+                        <span class="w-2 h-2 rounded-full bg-${color}-500"></span>
+                    </div>
+                    <h4 class="font-bold text-slate-800 mb-1 group-hover:text-emerald-600 transition-colors">${p.title}</h4>
+                    <p class="text-[11px] text-stone-500 leading-relaxed">${p.desc}</p>
+                    <div class="mt-4 pt-4 border-t border-stone-50">
+                        <span class="text-[9px] font-bold uppercase tracking-widest text-stone-400">${p.cat}</span>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        // Vocab Shuffle
+        function shuffleVocab() {
+            const card = document.getElementById('vocab-card');
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(20px)';
+
+            setTimeout(() => {
+                const vocab = vocabVault[Math.floor(Math.random() * vocabVault.length)];
+                document.getElementById('v-word').textContent = vocab.word;
+                document.getElementById('v-pos').textContent = vocab.pos;
+                document.getElementById('v-meaning').textContent = vocab.meaning;
+                document.getElementById('v-context').textContent = vocab.context;
+                
+                card.style.opacity = '1';
+                card.style.transform = 'translateY(0)';
+            }, 300);
+        }
+
+        // Init
+        window.onload = () => {
+            renderDashboardCharts();
+            shuffleVocab();
+        };
+    </script>
+</body>
+</html>
