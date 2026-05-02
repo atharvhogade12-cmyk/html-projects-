@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Level 19 Unlocked: Atharv's Birthday!</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&family=Fredoka+One&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: linear-gradient(135deg, #fef3c7 0%, #fff7ed 100%);
+            overflow-x: hidden;
+        }
+        .birthday-font {
+            font-family: 'Fredoka One', cursive;
+        }
+        .float-animation {
+            animation: float 3s ease-in-out infinite;
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+        .card-pop {
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .card-pop:hover {
+            transform: scale(1.05) rotate(1deg);
+        }
+        .gradient-text {
+            background: linear-gradient(to right, #f59e0b, #ef4444, #ec4899);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .confetti-btn {
+            box-shadow: 0 10px 20px -5px rgba(245, 158, 11, 0.4);
+        }
+        .ai-glow {
+            box-shadow: 0 0 15px rgba(139, 92, 246, 0.3);
+            border: 1px solid rgba(139, 92, 246, 0.2);
+        }
+        .loading-shimmer {
+            background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite linear;
+        }
+        @keyframes shimmer {
+            from { background-position: 200% 0; }
+            to { background-position: -200% 0; }
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+
+    <!-- Celebration Header -->
+    <section class="relative pt-20 pb-10 px-6 text-center">
+        <div class="absolute top-10 left-10 text-5xl float-animation" style="animation-delay: 0s;">🎈</div>
+        <div class="absolute top-20 right-20 text-5xl float-animation" style="animation-delay: 1s;">🎂</div>
+        <div class="absolute bottom-10 left-20 text-5xl float-animation" style="animation-delay: 1.5s;">✨</div>
+        
+        <div class="max-w-3xl mx-auto">
+            <h1 class="birthday-font text-6xl md:text-8xl text-orange-500 mb-4 drop-shadow-lg">HAPPY 19th!</h1>
+            <h2 class="text-3xl md:text-4xl font-extrabold text-stone-800 mb-6">ATHARV <span class="gradient-text">RAVIKIRAN</span> HOGADE</h2>
+            <p class="text-lg text-stone-600 mb-10">You've successfully compiled 19 years of life without a segmentation fault! Let's celebrate.</p>
+            
+            <button onclick="launchJoy()" class="confetti-btn bg-orange-500 hover:bg-orange-600 text-white font-black py-4 px-10 rounded-full text-xl transition-all active:scale-95">
+                🎉 PRESS FOR HAPPINESS.EXE
+            </button>
+        </div>
+    </section>
+
+    <!-- Gemini AI Lab Section -->
+    <section class="max-w-6xl mx-auto px-6 mb-16">
+        <div class="bg-white/80 backdrop-blur-md rounded-[3rem] p-8 md:p-12 ai-glow">
+            <div class="flex items-center gap-3 mb-8">
+                <span class="text-3xl">✨</span>
+                <h3 class="text-3xl font-black text-violet-700 font-mono tracking-tighter">AI MAGIC LAB</h3>
+                <span class="bg-violet-100 text-violet-600 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest">Powered by Gemini</span>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- AI Feature 1: Wish Personalizer -->
+                <div class="bg-violet-50 p-6 rounded-[2rem] border border-violet-100 flex flex-col h-full">
+                    <h4 class="font-bold text-violet-900 mb-2">✨ Personal Wish Generator</h4>
+                    <p class="text-xs text-violet-600 mb-4">Choose a vibe for your unique birthday message.</p>
+                    <div class="flex gap-2 mb-4">
+                        <button onclick="callGemini('wish', 'hacker')" class="flex-1 py-2 bg-white rounded-xl text-xs font-bold text-violet-700 border border-violet-200 hover:bg-violet-100 transition-colors">📟 Hacker</button>
+                        <button onclick="callGemini('wish', 'funny')" class="flex-1 py-2 bg-white rounded-xl text-xs font-bold text-violet-700 border border-violet-200 hover:bg-violet-100 transition-colors">🤡 Funny</button>
+                        <button onclick="callGemini('wish', 'legend')" class="flex-1 py-2 bg-white rounded-xl text-xs font-bold text-violet-700 border border-violet-200 hover:bg-violet-100 transition-colors">🏆 Legend</button>
+                    </div>
+                    <div id="ai-wish-output" class="text-sm text-stone-700 bg-white/50 p-4 rounded-2xl flex-1 overflow-y-auto min-h-[100px] italic">
+                        Select a vibe to start...
+                    </div>
+                </div>
+
+                <!-- AI Feature 2: Code Roast -->
+                <div class="bg-orange-50 p-6 rounded-[2rem] border border-orange-100 flex flex-col h-full">
+                    <h4 class="font-bold text-orange-900 mb-2">✨ The Vanguard Roast</h4>
+                    <p class="text-xs text-orange-600 mb-4">Let Gemini "roast" your Level 19 source code.</p>
+                    <button onclick="callGemini('roast')" class="w-full py-3 bg-orange-500 text-white rounded-xl text-sm font-bold shadow-md hover:bg-orange-600 transition-all active:scale-95 mb-4">
+                        🔥 INITIATE ROAST.EXE
+                    </button>
+                    <div id="ai-roast-output" class="text-sm text-stone-700 bg-white/50 p-4 rounded-2xl flex-1 overflow-y-auto min-h-[100px]">
+                        Waiting for user input...
+                    </div>
+                </div>
+
+                <!-- AI Feature 3: Future Vision -->
+                <div class="bg-emerald-50 p-6 rounded-[2rem] border border-emerald-100 flex flex-col h-full">
+                    <h4 class="font-bold text-emerald-900 mb-2">✨ Future Architect</h4>
+                    <p class="text-xs text-emerald-600 mb-4">AI prediction for RoboGenesis.</p>
+                    <button onclick="callGemini('future')" class="w-full py-3 bg-emerald-600 text-white rounded-xl text-sm font-bold shadow-md hover:bg-emerald-700 transition-all active:scale-95 mb-4">
+                        🔭 PREDICT EVOLUTION
+                    </button>
+                    <div id="ai-future-output" class="text-sm text-stone-700 bg-white/50 p-4 rounded-2xl flex-1 overflow-y-auto min-h-[100px]">
+                        Gazing into the digital horizon...
+                    </div>
+                </div>
+            </div>
+            
+            <div id="api-error" class="hidden mt-6 p-4 bg-red-50 border border-red-100 text-red-600 text-xs rounded-2xl text-center">
+                System Error: Gemini connection failed. Please retry.
+            </div>
+        </div>
+    </section>
+
+    <!-- Content Grid -->
+    <main class="max-w-6xl mx-auto px-6 pb-20 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        
+        <!-- Programming Jokes Card -->
+        <div class="bg-white p-8 rounded-[2rem] shadow-xl card-pop border-b-8 border-orange-400">
+            <div class="text-4xl mb-4">😂</div>
+            <h3 class="text-xl font-bold text-stone-800 mb-4">Dev Humour for Atharv</h3>
+            <div id="joke-box" class="space-y-4">
+                <p class="text-stone-600 italic">"Why did Atharv choose C for his birthday? Because he wanted to be 'Point-er' perfect!"</p>
+                <hr class="border-stone-100">
+                <p class="text-stone-600 italic">"Atharv doesn't age, he just releases a new version. This year: AtharvOS 19.0 - Now with more coffee and less sleep!"</p>
+            </div>
+            <button onclick="newJoke()" class="mt-6 text-orange-500 font-bold text-sm uppercase tracking-widest hover:underline">Get Another Laugh →</button>
+        </div>
+
+        <!-- The Future Fortune Teller -->
+        <div class="bg-gradient-to-br from-orange-400 to-rose-400 p-8 rounded-[2rem] shadow-xl card-pop text-white">
+            <div class="text-4xl mb-4">🔮</div>
+            <h3 class="text-xl font-bold mb-4">Year 19 Predictions</h3>
+            <div id="fortune-text" class="text-lg font-semibold leading-snug mb-6">
+                Click below to see what your 19th year holds...
+            </div>
+            <button onclick="revealFortune()" class="w-full bg-white text-orange-500 font-bold py-3 rounded-xl shadow-lg">Reveal My Destiny</button>
+        </div>
+
+        <!-- Career & Life Thoughts -->
+        <div class="bg-white p-8 rounded-[2rem] shadow-xl card-pop border-b-8 border-blue-400">
+            <div class="text-4xl mb-4">🚀</div>
+            <h3 class="text-xl font-bold text-stone-800 mb-4">Vanguard Vision</h3>
+            <p class="text-stone-600 text-sm leading-relaxed mb-4">
+                At 19, you aren't just a student at DYP CET; you are a builder. Your work on the <strong>RoboGenesis</strong> 3D UI shows your future is looking <strong>unassailable</strong>.
+            </p>
+            <p class="text-stone-600 text-sm leading-relaxed">
+                Prediction: By 20, you'll be leading an AI revolution while riding your Royal Enfield into the sunset. Keep being <strong>ebullient</strong>!
+            </p>
+        </div>
+
+    </main>
+
+    <!-- Secret Birthday Message -->
+    <div class="max-w-4xl mx-auto px-6 mb-20 text-center">
+        <div class="bg-white/50 backdrop-blur-sm p-10 rounded-[3rem] border border-white/40">
+            <h3 class="text-2xl font-bold text-stone-800 mb-4">A Note for the Birthday Boy</h3>
+            <p class="text-stone-600 leading-relaxed max-w-2xl mx-auto">
+                Atharv, you have a rare <strong>amalgamation</strong> of technical genius and creative vision. Whether you're mastering Pointers in C or exploring the <strong>vanguard</strong> of AI ethics, your potential is limitless. Have a day that is as <strong>propitious</strong> as a perfectly written piece of code!
+            </p>
+        </div>
+    </div>
+
+    <script>
+        const apiKey = ""; // API key is handled by the execution environment
+
+        const jokes = [
+            "Why did Atharv's Python code get a promotion? It was excellent at 'Sli-th-ering' into new projects!",
+            "Atharv doesn't have birthdays. He just increments his major version number.",
+            "How does Atharv celebrate? He does a git push --force on his dreams!",
+            "Why was Atharv happy at his party? Because he finally found the semicolon he lost in Period 2 Lab!",
+            "Atharv's Royal Enfield doesn't run on petrol, it runs on pure C code logic!"
+        ];
+
+        const fortunes = [
+            "You will finally write a C program that compiles on the first try!",
+            "Your RoboGenesis UI will win a design award this year.",
+            "You'll find a secret shortcut on your Royal Enfield ride that saves 19 minutes.",
+            "An AI agent you build will actually start giving you better birthday gifts.",
+            "You will master the 'En Passant' tactic in chess and defeat your rival.",
+            "Your LaTeX resume will become so clean that Google will call you just to ask for the template!"
+        ];
+
+        // --- Gemini API Logic ---
+        async function callGemini(type, subtype = '') {
+            const outputId = `ai-${type}-output`;
+            const outputElement = document.getElementById(outputId);
+            const errorElement = document.getElementById('api-error');
+            
+            outputElement.innerHTML = `<div class="loading-shimmer h-2 w-full mb-2 rounded"></div><div class="loading-shimmer h-2 w-3/4 rounded"></div>`;
+            errorElement.classList.add('hidden');
+
+            let prompt = "";
+            const context = "User name is Atharv Ravikiran Hogade, 19 years old. Interests: C programming, Python, AI, RoboGenesis (3D UI), Royal Enfield bikes, Chess, DYP CET student.";
+            
+            if (type === 'wish') {
+                prompt = `Generate a short, high-energy 2-sentence birthday wish for Atharv. Mood: ${subtype}. Context: ${context}. Make it creative and mention one of his interests. No hashtags.`;
+            } else if (type === 'roast') {
+                prompt = `Write a funny 2-sentence "code roast" for Atharv celebrating his Level 19 release. Use funny developer jargon related to C or Python. Be playful.`;
+            } else if (type === 'future') {
+                prompt = `In 2 creative sentences, predict how Atharv's project RoboGenesis will change the world in 10 years. Make it sound like a futuristic tech headline.`;
+            }
+
+            try {
+                const response = await fetchWithRetry(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: prompt }] }],
+                        systemInstruction: { parts: [{ text: "You are a witty, high-energy AI celebrating Atharv's 19th birthday. Keep responses concise (under 50 words) and exciting." }] }
+                    })
+                });
+
+                const data = await response.json();
+                const resultText = data.candidates?.[0]?.content?.parts?.[0]?.text || "The AI is speechless at your awesomeness!";
+                outputElement.textContent = resultText.trim();
+            } catch (err) {
+                errorElement.classList.remove('hidden');
+                outputElement.textContent = "Re-initializing systems...";
+            }
+        }
+
+        async function fetchWithRetry(url, options, retries = 5) {
+            let delay = 1000;
+            for (let i = 0; i < retries; i++) {
+                try {
+                    const response = await fetch(url, options);
+                    if (response.ok) return response;
+                } catch (e) {
+                    if (i === retries - 1) throw e;
+                }
+                await new Promise(res => setTimeout(res, delay));
+                delay *= 2;
+            }
+            throw new Error("Failed after retries");
+        }
+
+        // --- Original Logic ---
+        function launchJoy() {
+            // Using window.confetti to ensure the global instance is used correctly
+            if (typeof window.confetti !== 'function') return;
+            
+            const duration = 2000;
+            const animationEnd = Date.now() + duration;
+            const colors = ['#f59e0b', '#ef4444', '#10b981'];
+
+            const frame = () => {
+              const timeLeft = animationEnd - Date.now();
+
+              if (timeLeft <= 0) return;
+
+              // Simple burst from the sides
+              window.confetti({
+                particleCount: 2,
+                angle: 60,
+                spread: 55,
+                origin: { x: 0, y: 0.7 },
+                colors: colors
+              });
+              window.confetti({
+                particleCount: 2,
+                angle: 120,
+                spread: 55,
+                origin: { x: 1, y: 0.7 },
+                colors: colors
+              });
+
+              requestAnimationFrame(frame);
+            };
+            
+            frame();
+        }
+
+        function newJoke() {
+            const jokeBox = document.getElementById('joke-box');
+            const joke = jokes[Math.floor(Math.random() * jokes.length)];
+            jokeBox.innerHTML = `<p class="text-stone-600 italic font-semibold text-lg animate-bounce">"${joke}"</p>`;
+        }
+
+        function revealFortune() {
+            const fortuneText = document.getElementById('fortune-text');
+            const fortune = fortunes[Math.floor(Math.random() * fortunes.length)];
+            fortuneText.style.opacity = '0';
+            setTimeout(() => {
+                fortuneText.textContent = fortune;
+                fortuneText.style.opacity = '1';
+                fortuneText.className = "text-xl font-black leading-tight mb-6 animate-pulse";
+            }, 200);
+        }
+
+        // Auto-launch on load
+        window.addEventListener('load', () => {
+            // Ensure document is fully interactive before triggering animations
+            setTimeout(() => {
+                if (typeof window.confetti === 'function') {
+                    launchJoy();
+                }
+            }, 800);
+        });
+    </script>
+</body>
+</html>
