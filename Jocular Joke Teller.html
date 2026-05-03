@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jocular Joke Teller</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom animations to enhance the mirthful experience */
+        .fade-in { 
+            animation: fadeIn 0.4s ease-out forwards; 
+        }
+        .bounce-in { 
+            animation: bounceIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; 
+        }
+        
+        @keyframes fadeIn { 
+            from { opacity: 0; transform: translateY(10px); } 
+            to { opacity: 1; transform: translateY(0); } 
+        }
+        
+        @keyframes bounceIn {
+            0% { transform: scale(0.8); opacity: 0; }
+            50% { transform: scale(1.05); opacity: 1; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        /* Hide scrollbar for a cleaner look if categories overflow */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-violet-600 via-fuchsia-600 to-orange-500 min-h-screen flex flex-col items-center justify-center p-4 font-sans text-gray-800 transition-colors duration-500">
+
+    <!-- Main Application Card -->
+    <div class="bg-white/95 backdrop-blur-sm rounded-3xl shadow-2xl p-8 max-w-lg w-full text-center transform transition-all hover:shadow-3xl border border-white/20">
+        
+        <!-- Header -->
+        <div class="mb-8">
+            <h1 class="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-violet-600 to-fuchsia-600 mb-2">
+                The Jocular Box 🎭
+            </h1>
+            <p class="text-gray-500 text-sm font-medium">Expand your repertoire of hilarity</p>
+        </div>
+
+        <!-- Category Selector -->
+        <div class="flex justify-center space-x-2 mb-8 overflow-x-auto no-scrollbar pb-2">
+            <button onclick="setCategory('general')" id="btn-general" class="category-btn px-4 py-2 rounded-full text-sm font-bold transition-all bg-violet-600 text-white shadow-md hover:bg-violet-700">
+                General
+            </button>
+            <button onclick="setCategory('dad')" id="btn-dad" class="category-btn px-4 py-2 rounded-full text-sm font-bold transition-all bg-gray-200 text-gray-700 shadow-sm hover:bg-gray-300 hover:text-gray-900">
+                Dad Jokes
+            </button>
+            <button onclick="setCategory('programming')" id="btn-programming" class="category-btn px-4 py-2 rounded-full text-sm font-bold transition-all bg-gray-200 text-gray-700 shadow-sm hover:bg-gray-300 hover:text-gray-900">
+                Programming
+            </button>
+        </div>
+
+        <!-- Joke Display Area -->
+        <div class="min-h-[160px] flex flex-col justify-center items-center mb-8 relative">
+            
+            <!-- Initial State / Empty State -->
+            <div id="initial-state" class="text-gray-400 italic">
+                Press the button below to summon a guffaw!
+            </div>
+
+            <!-- Setup Text -->
+            <h2 id="joke-setup" class="text-2xl font-bold text-gray-800 hidden leading-tight">
+                <!-- Setup injected via JS -->
+            </h2>
+
+            <!-- Punchline Text -->
+            <div id="joke-punchline" class="mt-6 text-xl font-extrabold text-fuchsia-600 hidden">
+                <!-- Punchline injected via JS -->
+            </div>
+            
+            <!-- Emoji reaction that pops up with punchline -->
+            <div id="reaction-emoji" class="absolute -bottom-4 right-0 text-4xl hidden opacity-0 transition-opacity duration-300">
+                🤣
+            </div>
+        </div>
+
+        <!-- Action Button -->
+        <button id="action-btn" onclick="handleAction()" class="w-full bg-gradient-to-r from-orange-400 to-fuchsia-500 hover:from-orange-500 hover:to-fuchsia-600 text-white font-bold py-4 px-8 rounded-2xl shadow-lg transform transition-all active:scale-95 text-lg flex items-center justify-center space-x-2">
+            <span id="action-text">Tell me a Joke!</span>
+            <svg id="action-icon" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        </button>
+
+    </div>
+
+    <!-- Instructions / Vocab hint -->
+    <p class="mt-8 text-white/80 text-sm font-medium text-center max-w-md">
+        Build <span class="underline decoration-pink-400 decoration-2">anticipation</span> by reading the setup first, then click to reveal the punchline and enjoy the <span class="underline decoration-pink-400 decoration-2">mirth</span>!
+    </p>
+
+    <script>
+        // --- Data: The Repertoire of Jokes ---
+        const jokesDB = {
+            general: [
+                { setup: "Why don't scientists trust atoms?", punchline: "Because they make up everything!" },
+                { setup: "What do you call a fake noodle?", punchline: "An impasta!" },
+                { setup: "Why did the scarecrow win an award?", punchline: "Because he was outstanding in his field!" },
+                { setup: "How does a penguin build its house?", punchline: "Igloos it together!" },
+                { setup: "What do you call a bear with no teeth?", punchline: "A gummy bear!" }
+            ],
+            dad: [
+                { setup: "I'm reading a book on anti-gravity.", punchline: "I can't put it down!" },
+                { setup: "Hi, Hungry...", punchline: "I'm Dad!" },
+                { setup: "What do you call a factory that makes okay products?", punchline: "A satisfactory." },
+                { setup: "I only know 25 letters of the alphabet.", punchline: "I don't know y." },
+                { setup: "What did the ocean say to the beach?", punchline: "Nothing, it just waved." }
+            ],
+            programming: [
+                { setup: "Why do programmers prefer dark mode?", punchline: "Because light attracts bugs." },
+                { setup: "How many programmers does it take to change a light bulb?", punchline: "None, that's a hardware problem." },
+                { setup: "A SQL query goes into a bar, walks up to two tables and asks...", punchline: "'Can I join you?'" },
+                { setup: "What is a programmer's favorite hangout place?", punchline: "Foo Bar." },
+                { setup: "Why did the programmer quit his job?", punchline: "Because he didn't get arrays (a raise)." }
+            ]
+        };
+
+        // --- Application State ---
+        let currentCategory = 'general';
+        let currentJoke = null;
+        // State Machine: 0 = Ready for new joke, 1 = Setup shown (waiting for punchline)
+        let appState = 0; 
+
+        // --- DOM Elements ---
+        const setupEl = document.getElementById('joke-setup');
+        const punchlineEl = document.getElementById('joke-punchline');
+        const initialStateEl = document.getElementById('initial-state');
+        const actionBtn = document.getElementById('action-btn');
+        const actionText = document.getElementById('action-text');
+        const reactionEmoji = document.getElementById('reaction-emoji');
+
+        // --- Core Functions ---
+
+        // Change the active category and style the buttons
+        function setCategory(category) {
+            currentCategory = category;
+            
+            // Reset button styles
+            document.querySelectorAll('.category-btn').forEach(btn => {
+                btn.classList.remove('bg-violet-600', 'text-white');
+                btn.classList.add('bg-gray-200', 'text-gray-700');
+            });
+            
+            // Highlight active button
+            const activeBtn = document.getElementById(`btn-${category}`);
+            activeBtn.classList.remove('bg-gray-200', 'text-gray-700');
+            activeBtn.classList.add('bg-violet-600', 'text-white');
+
+            // Reset state so the user can immediately get a new joke from the new category
+            resetToIdle();
+        }
+
+        // Get a random joke from the selected category
+        function getRandomJoke() {
+            const categoryJokes = jokesDB[currentCategory];
+            const randomIndex = Math.floor(Math.random() * categoryJokes.length);
+            return categoryJokes[randomIndex];
+        }
+
+        // Handle the main button click based on the current state
+        function handleAction() {
+            if (appState === 0) {
+                showSetup();
+            } else if (appState === 1) {
+                showPunchline();
+            }
+        }
+
+        // Step 1: Reveal the Setup
+        function showSetup() {
+            currentJoke = getRandomJoke();
+            
+            // Hide initial state and previous punchlines
+            initialStateEl.classList.add('hidden');
+            punchlineEl.classList.add('hidden');
+            punchlineEl.classList.remove('bounce-in');
+            reactionEmoji.classList.add('hidden');
+            reactionEmoji.classList.remove('bounce-in');
+
+            // Show setup with animation
+            setupEl.textContent = currentJoke.setup;
+            setupEl.classList.remove('hidden', 'fade-in');
+            // Trigger reflow to restart animation
+            void setupEl.offsetWidth; 
+            setupEl.classList.add('fade-in');
+
+            // Update state and button text to build anticipation
+            appState = 1;
+            actionText.textContent = "Deliver Punchline!";
+            actionBtn.classList.replace('from-orange-400', 'from-fuchsia-500');
+            actionBtn.classList.replace('to-fuchsia-500', 'to-violet-600');
+        }
+
+        // Step 2: Reveal the Punchline
+        function showPunchline() {
+            punchlineEl.textContent = currentJoke.punchline;
+            punchlineEl.classList.remove('hidden');
+            
+            // Trigger reflow for bounce animation
+            void punchlineEl.offsetWidth;
+            punchlineEl.classList.add('bounce-in');
+
+            // Show emoji reaction
+            reactionEmoji.classList.remove('hidden');
+            void reactionEmoji.offsetWidth;
+            reactionEmoji.classList.add('bounce-in');
+
+            // Update state and button text back to default
+            appState = 0;
+            actionText.textContent = "Another One!";
+            actionBtn.classList.replace('from-fuchsia-500', 'from-orange-400');
+            actionBtn.classList.replace('to-violet-600', 'to-fuchsia-500');
+        }
+
+        // Reset the UI to the starting position (used when changing categories)
+        function resetToIdle() {
+            appState = 0;
+            setupEl.classList.add('hidden');
+            punchlineEl.classList.add('hidden');
+            reactionEmoji.classList.add('hidden');
+            initialStateEl.classList.remove('hidden');
+            
+            actionText.textContent = "Tell me a Joke!";
+            actionBtn.classList.replace('from-fuchsia-500', 'from-orange-400');
+            actionBtn.classList.replace('to-violet-600', 'to-fuchsia-500');
+        }
+    </script>
+</body>
+</html>
